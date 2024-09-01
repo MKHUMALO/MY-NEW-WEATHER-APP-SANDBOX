@@ -1,5 +1,4 @@
-
-</<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -7,12 +6,75 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
     <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
-    <link rel="stylesheet" href="src/styles.css" />
-    <title>My weather application</title>
+    <title>Weather Application</title>
+    <style>
+      body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f0f0f0;
+        color: #333;
+        margin: 0;
+        padding: 0;
+      }
+
+      .weather-app {
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+
+      header {
+        margin-bottom: 20px;
+      }
+
+      .search-input {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: 70%;
+        font-size: 16px;
+      }
+
+      .search-button {
+        padding: 10px;
+        border: none;
+        background-color: #007bff;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      .current-weather {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+      }
+
+      .current-temperature {
+        font-size: 48px;
+        font-weight: bold;
+      }
+
+      .current-temperature img {
+        width: 80px;
+        height: 80px;
+        vertical-align: middle;
+      }
+
+      footer {
+        margin-top: 20px;
+        font-size: 14px;
+      }
+    </style>
   </head>
   <body>
     <div class="weather-app">
@@ -20,7 +82,7 @@
         <form id="search-form">
           <input
             type="search"
-            placeholder="Enter a city.."
+            placeholder="Enter a city..."
             required
             class="search-input"
             id="search-input"
@@ -31,29 +93,65 @@
       <main>
         <div class="current-weather">
           <div>
-            <h1 class="current-city" id="current-city">Paris</h1>
-            <p class="current-details">
-              <span id="current-date"></span>, moderate rain <br />
-              Humidity: <strong>87%</strong>, Wind: <strong>7.2km/h</strong>
+            <h1 class="current-city" id="current-city">City</h1>
+            <p class="current-details" id="current-details">
+              <span id="current-date"></span>, <span id="weather-description"></span><br />
+              Humidity: <strong id="humidity"></strong>, Wind: <strong id="wind-speed"></strong>
             </p>
           </div>
           <div class="current-temperature">
-            <span class="current-temperature-icon">☀️</span
-            ><span class="current-temperature-value" id="current-temperature"
-              >24</span
-            ><span class="current-temperature-unit">°C</span>
+            <img id="weather-icon" alt="Weather Icon" />
+            <span class="current-temperature-value" id="current-temperature">--</span>
+            <span class="current-temperature-unit">°C</span>
           </div>
         </div>
       </main>
       <footer>
         <p>
           This project was coded by
-          <a href="#" target="https://github.com/MKHUMALO"> Matshidiso khumalo </a> and is
-          <a href="#" target="https://github.com/MKHUMALO/MY-NEW-WEATHER-APP-SANDBOX"> on GitHub</a> and
-          <a href="#" target="https://app.netlify.com/teams/mkhumalo/sites">hosted on Netlify</a>
+          <a href="https://github.com/MKHUMALO" target="_blank"> Matshidiso Khumalo </a> and is
+          <a href="https://github.com/MKHUMALO/MY-NEW-WEATHER-APP-SANDBOX" target="_blank"> on GitHub</a> and
+          <a href="https://app.netlify.com/teams/mkhumalo/sites" target="_blank">hosted on Netlify</a>
         </p>
       </footer>
     </div>
+
+    <script>
+      document.getElementById("search-form").addEventListener("submit", function (event) {
+        event.preventDefault();
+        const city = document.getElementById("search-input").value;
+        getWeatherData(city);
+      });
+
+      function getWeatherData(city) {
+        const apiKey = "6ac39578faa23575bac118cd8d2ac3ad"; // Replace with your OpenWeatherMap API key
+        const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
+        axios.get(apiUrl)
+          .then(response => {
+            const data = response.data;
+            updateWeatherUI(data);
+          })
+          .catch(error => {
+            alert("City not found. Please try again.");
+            console.error(error);
+          });
+      }
+
+      function updateWeatherUI(data) {
+        document.getElementById("current-city").textContent = data.name;
+        document.getElementById("current-temperature").textContent = Math.round(data.main.temp);
+        document.getElementById("humidity").textContent = `${data.main.humidity}%`;
+        document.getElementById("wind-speed").textContent = `${data.wind.speed} km/h`;
+        document.getElementById("weather-description").textContent = data.weather[0].description;
+
+        const iconCode = data.weather[0].icon;
+        document.getElementById("weather-icon").src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+
+        // Update date
+        const now = new Date();
+        document.getElementById("current-date").textContent = now.toDateString();
+      }
+    </script>
   </body>
-  <script src="GITHUB.js"></script>
 </html>
