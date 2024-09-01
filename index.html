@@ -10,7 +10,7 @@
       rel="stylesheet"
     />
     <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
-    <title>Weather Application</title>
+    <title>Pretoria Weather Application</title>
     <style>
       body {
         font-family: 'Roboto', sans-serif;
@@ -64,9 +64,8 @@
         font-weight: bold;
       }
 
-      .current-temperature img {
-        width: 80px;
-        height: 80px;
+      .current-temperature .emoji {
+        font-size: 80px;
         vertical-align: middle;
       }
 
@@ -100,7 +99,7 @@
             </p>
           </div>
           <div class="current-temperature">
-            <img id="weather-icon" alt="Weather Icon" />
+            <span id="weather-emoji" class="emoji">☀️</span>
             <span class="current-temperature-value" id="current-temperature">--</span>
             <span class="current-temperature-unit">°C</span>
           </div>
@@ -123,6 +122,7 @@
         getWeatherData(city);
       });
 
+      // Function to get weather data
       function getWeatherData(city) {
         const apiKey = "6ac39578faa23575bac118cd8d2ac3ad"; // Replace with your OpenWeatherMap API key
         const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
@@ -138,6 +138,7 @@
           });
       }
 
+      // Function to update the UI with weather data
       function updateWeatherUI(data) {
         document.getElementById("current-city").textContent = data.name;
         document.getElementById("current-temperature").textContent = Math.round(data.main.temp);
@@ -145,13 +146,42 @@
         document.getElementById("wind-speed").textContent = `${data.wind.speed} km/h`;
         document.getElementById("weather-description").textContent = data.weather[0].description;
 
-        const iconCode = data.weather[0].icon;
-        document.getElementById("weather-icon").src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+        // Get appropriate emoji based on weather condition
+        const emoji = getWeatherEmoji(data.weather[0].main);
+        document.getElementById("weather-emoji").textContent = emoji;
 
         // Update date
         const now = new Date();
         document.getElementById("current-date").textContent = now.toDateString();
       }
+
+      // Function to return weather emoji based on condition
+      function getWeatherEmoji(condition) {
+        const weatherEmojis = {
+          Clear: "☀️",
+          Clouds: "☁️",
+          Rain: "🌧️",
+          Drizzle: "🌦️",
+          Thunderstorm: "⛈️",
+          Snow: "❄️",
+          Mist: "🌫️",
+          Smoke: "🌫️",
+          Haze: "🌫️",
+          Dust: "🌪️",
+          Fog: "🌫️",
+          Sand: "🌪️",
+          Ash: "🌋",
+          Squall: "🌬️",
+          Tornado: "🌪️"
+        };
+
+        return weatherEmojis[condition] || "❓"; // Default emoji for unknown condition
+      }
+
+      // Automatically load weather for Pretoria on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        getWeatherData("Pretoria");
+      });
     </script>
   </body>
 </html>
