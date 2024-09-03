@@ -10,7 +10,7 @@
       rel="stylesheet"
     />
     <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
-    <title>Pretoria Weather Application</title>
+    <title>Weather Application</title>
     <style>
       body {
         font-family: 'Roboto', sans-serif;
@@ -73,6 +73,20 @@
         margin-top: 20px;
         font-size: 14px;
       }
+
+      .forecast {
+        margin-top: 30px;
+      }
+
+      .forecast-day {
+        margin-top: 15px;
+        font-size: 18px;
+        font-weight: 500;
+      }
+
+      .forecast-day .emoji {
+        font-size: 40px;
+      }
     </style>
   </head>
   <body>
@@ -104,6 +118,9 @@
             <span class="current-temperature-unit">°C</span>
           </div>
         </div>
+        <div class="forecast" id="forecast">
+          <!-- Forecast will be dynamically generated -->
+        </div>
       </main>
       <footer>
         <p>
@@ -125,9 +142,10 @@
       // Function to get weather data
       function getWeatherData(city) {
         const apiKey = "6ac39578faa23575bac118cd8d2ac3ad"; // Replace with your OpenWeatherMap API key
-        const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+        const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+        const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`;
 
-        axios.get(apiUrl)
+        axios.get(weatherUrl)
           .then(response => {
             const data = response.data;
             updateWeatherUI(data);
@@ -136,9 +154,18 @@
             alert("City not found. Please try again.");
             console.error(error);
           });
+
+        axios.get(forecastUrl)
+          .then(response => {
+            const data = response.data;
+            updateForecastUI(data);
+          })
+          .catch(error => {
+            console.error("Error fetching forecast data:", error);
+          });
       }
 
-      // Function to update the UI with weather data
+      // Function to update the UI with current weather data
       function updateWeatherUI(data) {
         document.getElementById("current-city").textContent = data.name;
         document.getElementById("current-temperature").textContent = Math.round(data.main.temp);
@@ -153,6 +180,28 @@
         // Update date
         const now = new Date();
         document.getElementById("current-date").textContent = now.toDateString();
+      }
+
+      // Function to update the forecast UI
+      function updateForecastUI(data) {
+        const forecastContainer = document.getElementById("forecast");
+        forecastContainer.innerHTML = ""; // Clear previous forecast data
+
+        // Show forecast for the next 3 days at midday (12:00)
+        const forecastItems = data.list.filter(item => item.dt_txt.includes("12:00:00"));
+        for (let i = 0; i < 3; i++) {
+          const forecast = forecastItems[i];
+          const date = new Date(forecast.dt * 1000).toDateString();
+          const emoji = getWeatherEmoji(forecast.weather[0].main);
+          const temp = Math.round(forecast.main.temp);
+
+          const forecastHTML = `
+            <div class="forecast-day">
+              ${date}: <span class="emoji">${emoji}</span> ${temp}°C
+            </div>
+          `;
+          forecastContainer.innerHTML += forecastHTML;
+        }
       }
 
       // Function to return weather emoji based on condition
